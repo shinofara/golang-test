@@ -1,0 +1,65 @@
+version: '2'
+services:
+  nginx:
+    image: nginx
+    ports:
+      - "1380:80"
+    links:
+      - goapp
+    depends_on:
+      - goapp
+    volumes:
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+  goapp:
+    build: docker/echo
+    ports:
+      - "1323:1323"
+    depends_on:
+      - mariadb
+    links:
+      - mariadb      
+    restart: always
+  goji:
+    build: docker/goji
+    ports:
+      - "1324:8000"
+    depends_on:
+      - mariadb
+    links:
+      - mariadb      
+    restart: always
+  gin:
+    build: docker/gin
+    ports:
+      - "1325:8080"
+    depends_on:
+      - mariadb
+    links:
+      - mariadb
+    restart: always
+
+  mariadb:
+    build: docker/mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.data/db/mysql:/var/lib/mysql
+      - ./.data/conf.d:/etc/mysql/conf.d:ro
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_USER: root
+    restart: always
+
+#  mackerel:
+#    image: mackerel/mackerel-agent
+#    container_name: mackerel-agent
+#    environment:
+#      - apikey=
+#      - enable_docker_plugin=true
+#      - opts=-v
+#      - auto_retirement=false
+#    volumes:
+#      - /var/run/docker.sock
+#      - /var/lib/mackerel-agent
+#      - ./docker/mackerel/conf.d:/etc/mackerel-agent/conf.d

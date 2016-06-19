@@ -1,0 +1,6 @@
+package: .
+import:
+- package: github.com/labstack/echo
+  subpackages:
+  - engine/standard
+- package: github.com/go-sql-driver/mysql
